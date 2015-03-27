@@ -54,11 +54,6 @@ class game:
             for g in self.guns:
                 g.move(span)
             self.canvas.update()
-            '''
-            self.tk.update_idletasks()
-            self.tk.update()
-            time.sleep(0.01)
-            '''
         
 class coords:
     def __init__(self,x1=float(0),x2=float(0),y1=float(0),y2=float(0)):
@@ -98,12 +93,10 @@ class mine_rocket(rocket):
         if event.keysym == 'Left':
             self.left_pressed = True
             self.direction = 'Left'
- #           self.next_coords.x1 = self.coords.x1 - X_GAP
             print('Left')
         elif event.keysym == 'Right':
             self.right_pressed = True
             self.direction = 'Right'
-#            self.next_coords.x1 = self.coords.x1 + X_GAP
             print('Right')
         elif event.keysym == 'space':
             self.shoot()
@@ -178,7 +171,5 @@ if __name__ == "__main__":
     mine=mine_rocket(g,coords(MINE_ROCKET_X, MINE_ROCKET_X + ROCKET_WIDTH, MINE_ROCKET_Y, MINE_ROCKET_Y + ROCKET_HEIGHT))
     cpu=cpu_rocket(g)
     g.main_loop()
-"""homework::::::code   understand"""
-
  
 
