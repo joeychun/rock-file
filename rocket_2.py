@@ -81,20 +81,16 @@ class key_controller:
     def key(self, event):
         if event.keysym == 'Left':
             self.left_press_time = time.time()
-            #print ('left press')
         if event.keysym == 'Right':
             self.right_press_time = time.time()
-            #print ('right press')
         if event.keysym == 'space':
             pass
 
     def key_release(self, event):
         if event.keysym == 'Left':
             self.left_release_time = time.time()
-            #print ('left release')
         if event.keysym == 'Right':
             self.right_release_time = time.time()
-            #print ('right release')
         if event.keysym == 'space':
             pass
 
