@@ -16,6 +16,7 @@ CPU_ROCKET_Y = 50
 X_GAP = 10
 X_VEL = 5 * 25
 Y_VEL = 5 * 25
+TIME_GAP = 0.01
 
 class game:
     def __init__(self):
@@ -67,6 +68,65 @@ class rocket:
 class gun:
     pass
 
+class key_controller:
+    def __init__(self):
+        self.left_press_time = None
+        self.right_press_time = None
+        self.left_release_time = None
+        self.right_release_time = None
+        self.left_pressed = False
+        self.right_pressed = False
+        self.direction = None
+
+    def key(self, event):
+        if event.keysym == 'Left':
+            self.left_press_time = time.time()
+            #print ('left press')
+        if event.keysym == 'Right':
+            self.right_press_time = time.time()
+            #print ('right press')
+        if event.keysym == 'space':
+            pass
+
+    def key_release(self, event):
+        if event.keysym == 'Left':
+            self.left_release_time = time.time()
+            #print ('left release')
+        if event.keysym == 'Right':
+            self.right_release_time = time.time()
+            #print ('right release')
+        if event.keysym == 'space':
+            pass
+
+    def check_pressed(self, press_time, release_time):
+        if press_time is None:
+            return False
+        elif release_time is None:
+            return True
+        else:
+            if press_time > release_time:
+                return True
+            else:
+                current_time = time.time()
+                gap = current_time - release_time
+                return (gap < TIME_GAP)
+
+    def loop(self):
+        self.left_pressed = self.check_pressed(self.left_press_time, self.left_release_time)
+        self.right_pressed = self.check_pressed(self.right_press_time, self.right_release_time)
+        if self.left_pressed is False and self.right_pressed is False:
+            self.direction = None
+        elif self.left_pressed is True and self.right_pressed is False:
+            self.direction = 'Left'
+        elif self.left_pressed is False and self.right_pressed is True:
+            self.direction = 'Right'
+        elif self.left_pressed is True and self.right_pressed is True:
+            if self.left_press_time > self.right_press_time:
+                self.direction = 'Left'
+            else:
+                self.direction = 'Right'
+        
+
 class mine_rocket(rocket):
     def __init__(self,game,coords):
         self.game = game
@@ -75,13 +135,11 @@ class mine_rocket(rocket):
         self.canvas=game.canvas
         self.bg = PhotoImage(file="rocketshipMINE.gif")
         self.image = self.canvas.create_image(coords.x1,coords.y1,image=self.bg,anchor='nw')
-        self.canvas.bind_all('<Key>', self.key)
-        self.canvas.bind_all('<KeyRelease>', self.key_release)
-        self.left_pressed = False
-        self.right_pressed = False
+        self.key_controller = key_controller()
+        self.canvas.bind_all('<Key>', self.key_controller.key)
+        self.canvas.bind_all('<KeyRelease>', self.key_controller.key_release)
         self.game.add_rocket(self)
         self.t0 = time.clock()
-        self.direction = None
         
     def shoot(self):
         t1 = time.time()
@@ -89,40 +147,11 @@ class mine_rocket(rocket):
             mine_rocket_gun(self.game, self.coords)
             self.t0 = t1
 
-    def key(self, event):
-        if event.keysym == 'Left':
-            self.left_pressed = True
-            self.direction = 'Left'
-            print('Left')
-        elif event.keysym == 'Right':
-            self.right_pressed = True
-            self.direction = 'Right'
-            print('Right')
-        elif event.keysym == 'space':
-            self.shoot()
-
-    def key_release(self, event):
-        if event.keysym == 'Left':
-            self.left_pressed = False
-            if not self.right_pressed:
-                self.direction = None
-            else:
-                self.direction = 'Right'
-            print('Left_Release')
-        elif event.keysym == 'Right':
-            self.right_pressed = False
-            if not self.left_pressed:
-                self.direction = None
-            else:
-                self.direction = 'Left'
-            print('Right_Release')
-        else:
-            pass
-
     def move(self, span):
-        if self.direction is None:
+        self.key_controller.loop()
+        if self.key_controller.direction is None:
             pass
-        elif self.direction is 'Left':
+        elif self.key_controller.direction is 'Left':
             distance = span * X_VEL
             if self.coords.x1 - distance >= MIN_X:
                 self.canvas.move(self.image, -distance, 0)
