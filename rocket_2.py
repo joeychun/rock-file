@@ -64,15 +64,26 @@ class coords:
         self.y2=y2
 
 class rocket:
-    pass
+    def __init__(self, coords):
+        self.bounding_boxes = []
+        self.coords = coords
+        
+    def register_bounding_box(self, x1, x2, y1, y2):
+        self.bounding_boxes.append(coords(x1, x2, y1, y2))
+
+    def collision_check(self, obj):
+        pass
+        #for box in self.bounding_boxes:
+        
 class gun:
     pass
 
 class mine_rocket(rocket):
     def __init__(self,game,coords):
+        rocket.__init__(self, coords)
+        self.register_bounding_box(40, 60, 40, 72)
+        self.register_bounding_box(30, 70, 65, 72)
         self.game = game
-        self.coords = coords
-        self.next_coords = copy.copy(coords)
         self.canvas=game.canvas
         self.bg = PhotoImage(file="rocketshipMINE.gif")
         self.image = self.canvas.create_image(coords.x1,coords.y1,image=self.bg,anchor='nw')
@@ -105,23 +116,17 @@ class mine_rocket(rocket):
            
 class mine_rocket_gun:
     def __init__(self,game,coords):
+        rocket.__init__(self, coords)
         self.game = game
-        self.coords = copy.copy(coords)
-        self.coords.y1 -= 20
-        self.next_coords = copy.copy(self.coords)
-        self.next_coords.y1 = 0
         self.canvas=game.canvas
         self.bg = PhotoImage(file="bulletMINE.gif")
         self.image = self.canvas.create_image(self.coords.x1,self.coords.y1,image=self.bg,anchor='nw', tags='gun')
         self.game.add_gun(self)
         
     def move(self, span):
-        if self.next_coords.y1 + span * Y_VEL < self.coords.y1 and self.coords.y1 > MIN_Y:
+        if self.coords.y1 > MIN_Y:
             self.canvas.move(self.image, 0, -span * Y_VEL)
             self.coords.y1 -= span * Y_VEL
-        elif self.coords.y1 + span * Y_VEL < self.next_coords.y1 and self.coords.y1 <= MAX_Y:
-            self.canvas.move(self.image, 0, span * Y_VEL)
-            self.coords.y1 += span * Y_VEL
         if self.coords.y1 <= MIN_Y + 10:
             self.canvas.delete('gun')
             self.game.delete_gun(self)
