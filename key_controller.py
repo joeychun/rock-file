@@ -11,6 +11,7 @@ class key_controller:
         self.left_pressed = False
         self.right_pressed = False
         self.direction = None
+        self.space_pressed = False
 
     def key(self, event):
         if event.keysym == 'Left':
@@ -18,7 +19,7 @@ class key_controller:
         if event.keysym == 'Right':
             self.right_press_time = time.time()
         if event.keysym == 'space':
-            pass
+            self.space_pressed = True
 
     def key_release(self, event):
         if event.keysym == 'Left':
@@ -26,7 +27,7 @@ class key_controller:
         if event.keysym == 'Right':
             self.right_release_time = time.time()
         if event.keysym == 'space':
-            pass
+            self.space_pressed = False
 
     def check_pressed(self, press_time, release_time):
         if press_time is None:

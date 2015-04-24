@@ -58,11 +58,15 @@ class game:
         
 class coords:
     def __init__(self,x1=float(0),x2=float(0),y1=float(0),y2=float(0)):
-        self.x1=x1
-        self.x2=x2
-        self.y1=y1
-        self.y2=y2
+        self.x1= min(x1, x2)
+        self.x2= max(x1, x2)
+        self.y1= min(y1, y2)
+        self.y2= max(y1, y2)
 
+    def add(self, other):
+        new_coords = coords(self.x1+other.x1, self.x2+other.x2, self.y1+other.y1, self.y2+other.y2)
+        return new_coords
+    
 class rocket:
     def __init__(self, coords):
         self.bounding_boxes = []
@@ -72,11 +76,20 @@ class rocket:
         self.bounding_boxes.append(coords(x1, x2, y1, y2))
 
     def collision_check(self, obj):
-        pass
-        #for box in self.bounding_boxes:
-        
+        #obj must have bounding_boxes and coords
+        for box_a in self.bounding_boxes:
+            for box_b in obj.bounding_boxes:
+                a = self.coords.add(box_a)
+                b = self.coords.add(box_b)
+                overlap_x = (a.x1 > b.x1 and a.x1 < b.x2) or (a.x1 < b.x1 and a.x2 > b.x1)
+                overlap_y = (a.y1 > b.y1 and a.y1 < b.y2) or (a.y1 < b.y1 and a.y2 > b.y1)
+
 class gun:
-    pass
+    def __init__(self, coords):
+        self.bounding_boxes = []
+        self.coords = coords
+    def register_bounding_box(self, x1, x2, y1, y2):
+        self.bounding_boxes.append(coords(x1, x2, y1, y2))
 
 class mine_rocket(rocket):
     def __init__(self,game,coords):
@@ -114,9 +127,9 @@ class mine_rocket(rocket):
                 self.canvas.move(self.image, distance, 0)
                 self.coords.x1 += distance
            
-class mine_rocket_gun:
+class mine_rocket_gun(gun):
     def __init__(self,game,coords):
-        rocket.__init__(self, coords)
+        gun.__init__(self, coords)
         self.game = game
         self.canvas=game.canvas
         self.bg = PhotoImage(file="bulletMINE.gif")
@@ -140,6 +153,9 @@ class cpu_rocket(rocket):
         self.game.add_rocket(self)
     def move(self, span):
         pass
+
+class cpu_rocket_gun(gun):
+    pass
 
 if __name__ == "__main__":
     g=game()
